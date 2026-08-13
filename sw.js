@@ -1,4 +1,4 @@
-const CACHE_NAME = "ccaa-memory-shell-20260814-r2";
+const CACHE_NAME = "ccaa-memory-shell-20260814-r3";
 const APP_SHELL = ["/", "/index.html", "/content/catalog.json", "/content/sources.json"];
 
 self.addEventListener("install", (event) => {
@@ -13,7 +13,8 @@ self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET" || new URL(event.request.url).origin !== self.location.origin) return;
   const url = new URL(event.request.url);
   const networkFirst = event.request.mode === "navigate" || url.pathname.startsWith("/content/");
-  event.respondWith(caches.match(event.request).then((cached) => {
+  const cachedResponse = event.request.mode === "navigate" ? caches.match("/") : caches.match(event.request);
+  event.respondWith(cachedResponse.then((cached) => {
     const fresh = fetch(event.request).then((response) => {
       if (response.ok) caches.open(CACHE_NAME).then((cache) => cache.put(event.request, response.clone()));
       return response;
